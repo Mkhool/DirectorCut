@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-SHYC/jXEXHf688YIDjjm+eMEwuG6FI5NS91DHT06JxQ='; style-src 'unsafe-inline'">
+<title>Retour TikTok · DirectorCut</title>
+<style>body{font:16px/1.5 system-ui,sans-serif;background:#111;color:#eee;display:flex;min-height:90vh;align-items:center;justify-content:center}main{max-width:540px;padding:24px;border:1px solid #333;border-radius:12px}</style>
+</head>
+<body>
+<main>
+<h1>Retour vers DirectorCut</h1>
+<p id="msg">Transmission de l’autorisation TikTok au studio DirectorCut de cet ordinateur…</p>
+<p>Cette page ne garde rien : elle renvoie ce navigateur vers le studio local (127.0.0.1). Si rien ne se passe, ouvrez DirectorCut sur ce PC et recommencez.</p>
+</main>
+<script>
+// DirectorCut — relay of the TikTok « account holder » redirect (static, GitHub Pages). It keeps only the
+// parameters TikTok sends back, checks their characters, removes them from this page's address, and sends
+// this browser to the studio on the same computer. Fixed target: never an address taken from the query.
+(function () {
+  var TARGET = 'http://127.0.0.1:5190/api/oauth/tiktok-business/callback/';
+  var KEEP = { code: /^[\w.~*-]{1,512}$/, state: /^[\w-]{16,128}$/, scopes: /^[\w.,]{0,512}$/, error: /^[\w.-]{1,64}$/, error_description: /^[\w .,'’()-]{0,200}$/ };
+  var input = new URLSearchParams(window.location.search);
+  var out = new URLSearchParams();
+  for (var k in KEEP) {
+    var v = input.get(k);
+    if (v !== null && KEEP[k].test(v)) out.set(k, v);
+  }
+  try { window.history.replaceState(null, '', window.location.pathname); } catch (e) {}
+  if (!out.get('state') || (!out.get('code') && !out.get('error'))) {
+    document.getElementById('msg').textContent = 'Aucune autorisation à transmettre : ouvrez DirectorCut sur ce PC et recommencez depuis le studio.';
+    return;
+  }
+  window.location.replace(TARGET + '?' + out.toString());
+})();
+</script>
+</body>
+</html>
